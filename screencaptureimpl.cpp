@@ -80,6 +80,9 @@ int ScreenCapture::ResetDxgiDup()
 
 ScreenCapture::~ScreenCapture()
 {
+    if (curInfo.buf)
+        allocator.release(allocator.opaque, curInfo.buf);
+
     SAFE_RELEASE(dxgiDup);
     SAFE_RELEASE(d3dContext);
     SAFE_RELEASE(d3dDevice);
