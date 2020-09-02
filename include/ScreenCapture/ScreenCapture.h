@@ -41,7 +41,22 @@ extern "C"
 {
 #endif
 
+typedef struct VideoOutput {
+    uint32_t index;
+    wchar_t name[32];
+} VideoOutput;
+
+typedef struct VideoAdapter{
+    uint32_t index;
+    wchar_t desc[128];
+    VideoOutput* outputs;
+    uint32_t output_count;
+} VideoAdapter;
+
 typedef struct ScreenCapture ScreenCapture;
+
+DXGISCREENCAPTURE_PUBLIC int EnumerateAdaptersAndOutputs(VideoAdapter** adapters, int* adapter_count);
+DXGISCREENCAPTURE_PUBLIC void FreeVideoAdapters(VideoAdapter* adapters);
 
 DXGISCREENCAPTURE_PUBLIC int CreateScreenCapture(int adapter_index, int display_index, ScreenCapture** capture);
 DXGISCREENCAPTURE_PUBLIC void DestroyScreenCapture(ScreenCapture* instance);

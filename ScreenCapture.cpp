@@ -337,3 +337,114 @@ int FrameRelease(Frame *frame)
     return 0;
 }
 
+class VideoAdapterImpl : public VideoAdapter
+{
+public:
+    VideoAdapterImpl()
+    {
+        index = -1;
+        outputs = NULL;
+        output_count = 0;
+        memset(desc,  0, sizeof(desc));
+    }
+
+    void InitOutputs(int c)
+    {
+        if (outputs)
+            delete[] outputs;
+        outputs = new VideoOutput[c];
+        output_count = c;
+    }
+
+    ~VideoAdapterImpl()
+    {
+        if(outputs)
+        {
+            delete[] outputs;
+        }
+    }
+};
+
+int EnumerateAdaptersAndOutputs(VideoAdapter **adapters, int *adapter_count)
+{
+    if (!adapters || !adapter_count)
+    {
+        return E_INVALID_ARGUMENTS;
+    }
+
+    IDXGIFactory1 *dxgiFactory;
+    HRESULT hr = CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)(&dxgiFactory));
+    if (FAILED(hr))
+    {
+        return E_DEVICE_NOT_SURPPORT;
+    }
+    UINT count = 0;
+    IDXGIAdapter1* dxgiadapter;
+    while(dxgiFactory->EnumAdapters1(count, &dxgiadapter) != DXGI_ERROR_NOT_FOUND)
+    {
+        ++count;
+    }
+    if (count == 0)
+    {
+        return E_DEVICE_NOT_SURPPORT;
+    }
+
+    VideoAdapterImpl* adpts = new VideoAdapterImpl[count];
+    *adapter_count = count;
+
+    for(int i = 0; i<count; ++i)
+    {
+        hr = dxgiFactory->EnumAdapters1(i, &dxgiadapter);
+        if(FAILED(hr))
+        {
+            goto again;
+        }
+        VideoAdapterImpl* adpt = &adpts[i];
+        adpt->index = i;
+        DXGI_ADAPTER_DESC desc;
+        dxgiadapter->GetDesc(&desc);
+        memcpy(adpt->desc, desc.Description, sizeof(desc.Description));
+
+        UINT c = 0;
+        IDXGIOutput* dxgi_output = NULL;
+        while(dxgiadapter->EnumOutputs(c, &dxgi_output)!=DXGI_ERROR_NOT_FOUND)
+        {
+            ++c;
+        }
+        if (count == 0)
+        {
+            continue;
+        }
+        adpt->InitOutputs(c);
+        for(int j = 0; j < c; ++j)
+        {
+            hr = dxgiadapter->EnumOutputs(j, &dxgi_output);
+            if (FAILED(hr))
+            {
+                goto again;
+            }
+            adpt->outputs[j].index = j;
+            DXGI_OUTPUT_DESC desc;
+            dxgi_output->GetDesc(&desc);
+            memcpy(adpt->outputs[j].name, desc.DeviceName, sizeof (desc.DeviceName));
+
+        }
+
+    }
+
+    *adapters = adpts;
+
+    return 0;
+
+again:
+    delete[] adpts;
+    *adapters = NULL;
+    *adapter_count = 0;
+    return E_AGAIN;
+}
+
+void FreeVideoAdapters(VideoAdapter *adapters)
+{
+    VideoAdapterImpl* impl = (VideoAdapterImpl*)adapters;
+    delete[] impl;
+}
