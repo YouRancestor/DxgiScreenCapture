@@ -72,16 +72,16 @@ static void DrawCursor(ScreenCapture* instance, FrameArgb *pic)
         {
             h = pic->height - cur->posY;
         }
-        for (int yi = 0; yi< h; ++yi)
+        for (UINT yi = 0; yi< h; ++yi)
         {
-            for (int xi = 0; xi < w; ++xi)
+            for (UINT xi = 0; xi < w; ++xi)
             {
                 char andByte = src[yi*cur->pitch + xi/8];
                 char xorByte = src[cur->pitch*h + yi*cur->pitch + xi/8];
-                int bit = xi % 8;
+                UINT bit = xi % 8;
                 char mask = 1 <<(7-bit);
 
-                int pixSize = 4;
+                UINT pixSize = 4;
                 uint32_t* dst_color = (uint32_t*)(dst + pic->pitch * (cur->posY + yi) + (cur->posX + xi) * pixSize);
 
                 if (!(mask & andByte))
@@ -110,10 +110,10 @@ static void DrawCursor(ScreenCapture* instance, FrameArgb *pic)
             h = pic->height - cur->posY;
         }
 
-        int pixSize = 4;
-        for (int yi = 0; yi< h; ++yi)
+        UINT pixSize = 4;
+        for (UINT yi = 0; yi< h; ++yi)
         {
-            for (int xi = 0; xi < w; ++xi)
+            for (UINT xi = 0; xi < w; ++xi)
             {
                 uint8_t* pixel = src + yi*cur->pitch + xi*pixSize;
                 uint32_t* dst_color = (uint32_t*)(dst + pic->pitch * (cur->posY + yi) + (cur->posX + xi) * pixSize);
@@ -124,7 +124,7 @@ static void DrawCursor(ScreenCapture* instance, FrameArgb *pic)
                     uint32_t a = (argb >> 24) & 0xff;
                     uint32_t r = (((argb >> 16) & 0xff) * a + ((*dst_color >> 16)&0xff) * (255-a)) / 255;
                     uint32_t g = (((argb >>  8) & 0xff) * a + ((*dst_color >>  8)&0xff) * (255-a)) / 255;
-                    uint32_t b = ((argb & 0xff) * a + (*dst_color&0xff) * (255-a)) / (float)255;
+                    uint32_t b = ((argb & 0xff) * a + (*dst_color&0xff) * (255-a)) / 255;
 
                     *dst_color = (0xff<<24) | (r<<16) | (g<<8) | b;
                 }
@@ -144,11 +144,11 @@ static void DrawCursor(ScreenCapture* instance, FrameArgb *pic)
         {
             h = pic->height - cur->posY;
         }
-        int pixSize = 4;
+        UINT pixSize = 4;
 
-        for (int yi = 0; yi< h; ++yi)
+        for (UINT yi = 0; yi< h; ++yi)
         {
-            for (int xi = 0; xi < w; ++xi)
+            for (UINT xi = 0; xi < w; ++xi)
             {
                 uint8_t* pixel = src + yi*cur->pitch + xi*pixSize;
                 uint32_t mask = (*(uint32_t*)pixel) & 0xff000000;
@@ -398,7 +398,7 @@ int EnumerateAdaptersAndOutputs(VideoAdapter **adapters, int *adapter_count)
     VideoAdapterImpl* adpts = new VideoAdapterImpl[count];
     *adapter_count = count;
 
-    for(int i = 0; i<count; ++i)
+    for(UINT i = 0; i<count; ++i)
     {
         hr = dxgiFactory->EnumAdapters1(i, &dxgiadapter);
         if(FAILED(hr))
@@ -422,7 +422,7 @@ int EnumerateAdaptersAndOutputs(VideoAdapter **adapters, int *adapter_count)
             continue;
         }
         adpt->InitOutputs(c);
-        for(int j = 0; j < c; ++j)
+        for(UINT j = 0; j < c; ++j)
         {
             hr = dxgiadapter->EnumOutputs(j, &dxgi_output);
             if (FAILED(hr))
