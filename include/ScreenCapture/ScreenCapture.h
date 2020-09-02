@@ -115,6 +115,7 @@ DXGISCREENCAPTURE_PUBLIC int SetMemAllocator(ScreenCapture* instance, GetBuffer 
  * @brief Set cursor visibility.
  * @param instance ScreenCapture instance
  * @param visible 1: show cursor, 0: hide cursor
+ * @remark the default value is 1
  */
 DXGISCREENCAPTURE_PUBLIC void SetCursorVisibility(ScreenCapture* instance, int visible);
 
