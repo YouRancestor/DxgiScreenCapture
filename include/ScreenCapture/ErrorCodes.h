@@ -1,0 +1,14 @@
+﻿#ifndef ERRORCODES_H
+#define ERRORCODES_H
+
+#define E_INVALID_ARGUMENTS -5
+#define E_INVALID_DISPLAY_INDEX -4
+#define E_INVALID_ADAPTER_INDEX -3
+#define E_DEVICE_NOT_SURPPORT -2
+#define E_UNKNOWN -1
+#define E_OK 0
+#define E_TIMEOUT 1
+#define E_NO_CHANGE 2
+#define E_AGAIN 3
+
+#endif // ERRORCODES_H
