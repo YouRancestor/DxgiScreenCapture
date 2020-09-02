@@ -87,3 +87,17 @@ ScreenCapture::~ScreenCapture()
     SAFE_RELEASE(d3dContext);
     SAFE_RELEASE(d3dDevice);
 }
+
+Buffer *ScreenCapture::DefaultAlloc(void *allocator, size_t size)
+{
+    Buffer* buf = new Buffer;
+    buf->ptr = new uint8_t[size];
+    buf->size = size;
+    return buf;
+}
+
+void ScreenCapture::DefaultFree(void *allocator, Buffer *buf)
+{
+    delete[] buf->ptr;
+    delete buf;
+}

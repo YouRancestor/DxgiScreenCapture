@@ -7,12 +7,13 @@ TARGET = dxgi_screen_capture
 
 DEFINES += BUILDING_DXGISCREENCAPTURE
 
-INCLUDEPATH += include
+INCLUDEPATH += include \
+    src
 
 SOURCES += \
-    ScreenCapture.cpp \
-    image.cpp \
-    screencaptureimpl.cpp
+    src/ScreenCapture.cpp \
+    src/image.cpp \
+    src/screencaptureimpl.cpp
 
 HEADERS += \
     definitions.h \

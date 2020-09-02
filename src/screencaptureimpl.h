@@ -41,19 +41,9 @@ struct ScreenCapture
     } allocator;
 
 private:
-    static Buffer* DefaultAlloc(void * allocator, size_t size)
-    {
-        Buffer* buf = new Buffer;
-        buf->ptr = new uint8_t[size];
-        buf->size = size;
-        return buf;
-    }
+    static Buffer* DefaultAlloc(void * allocator, size_t size);
 
-    static void DefaultFree(void * allocator, Buffer* buf)
-    {
-        delete[] buf->ptr;
-        delete buf;
-    }
+    static void DefaultFree(void * allocator, Buffer* buf);
 
 
 };
