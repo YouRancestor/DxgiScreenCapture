@@ -49,7 +49,6 @@ void DestroyScreenCapture(ScreenCapture *instance)
     delete instance;
 }
 
-#include <stdio.h>
 static void DrawCursor(ScreenCapture* instance, FrameArgb *pic)
 {
     if (!instance->curInfo.visiblity)
@@ -427,7 +426,8 @@ int EnumerateAdaptersAndOutputs(VideoAdapter **adapters, int *adapter_count)
             DXGI_OUTPUT_DESC desc;
             dxgi_output->GetDesc(&desc);
             memcpy(adpt->outputs[j].name, desc.DeviceName, sizeof (desc.DeviceName));
-
+            adpt->outputs[j].width = desc.DesktopCoordinates.right - desc.DesktopCoordinates.left;
+            adpt->outputs[j].height = desc.DesktopCoordinates.bottom - desc.DesktopCoordinates.top;
         }
 
     }

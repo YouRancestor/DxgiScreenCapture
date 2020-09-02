@@ -44,6 +44,8 @@ extern "C"
 typedef struct VideoOutput {
     uint32_t index;
     wchar_t name[32];
+    uint32_t width;
+    uint32_t height;
 } VideoOutput;
 
 typedef struct VideoAdapter{
