@@ -57,16 +57,39 @@ typedef struct VideoAdapter{
 
 typedef struct ScreenCapture ScreenCapture;
 
+/**
+ * @brief Enumerate video adapter and output devices.
+ * @param adapters [out] pointer to an array of VideoAdapter
+ * @param adapter_count [out] item count of array @em adapters
+ * @return error code, see ErrorCodes.h
+ * @remark call @em FreeVideoAdapters to release @em adapters when finish using it
+ */
 DXGISCREENCAPTURE_PUBLIC int EnumerateAdaptersAndOutputs(VideoAdapter** adapters, int* adapter_count);
+/**
+ * @brief FreeVideoAdapters
+ * @param adapters pointer to a VideoAdapter array returned by @em EnumerateAdaptersAndOutputs
+ */
 DXGISCREENCAPTURE_PUBLIC void FreeVideoAdapters(VideoAdapter* adapters);
 
+/**
+ * @brief Create a ScreenCapture instance.
+ * @param adapter_index VideoAdapter device's index to capture, you can get them by calling @em EnumerateAdaptersAndOutputs
+ * @param display_index VideoOutput device's index to capture, you can get them by calling @em EnumerateAdaptersAndOutputs
+ * @param capture [out] a ScreenCapture instance
+ * @return error code, see ErrorCodes.h
+ * @sa EnumerateAdaptersAndOutputs
+ */
 DXGISCREENCAPTURE_PUBLIC int CreateScreenCapture(int adapter_index, int display_index, ScreenCapture** capture);
+/**
+ * @brief Destroy ScreenCapture instance.
+ * @param instance the pointer returned by @em CreateScreenCapture
+ */
 DXGISCREENCAPTURE_PUBLIC void DestroyScreenCapture(ScreenCapture* instance);
 
 #define MAKE_FOURCC(a,b,c,d) \
 ( ((uint32_t)d) | ( ((uint32_t)c) << 8 ) | ( ((uint32_t)b) << 16 ) | ( ((uint32_t)a) << 24 ) )
 
-#define FORMAT_ARGB MAKE_FOURCC('A','R','G','B')
+#define FORMAT_ARGB MAKE_FOURCC('A','R','G','B')  // only support ARGB
 
 typedef struct Frame
 {
@@ -76,9 +99,23 @@ typedef struct Frame
     uint32_t height;
     uint32_t pitch;
 } Frame;
+/**
+ * @brief Set memory allocator.
+ * @param instance ScreenCapture instance
+ * @param get_buffer screen will use the buffer allocated by this callback to receive screen image data, can not be null
+ * @param release_buffer callback to release a buffer allocated by @em get_buffer, can not be null
+ * @param allocator the allocator context
+ * @return error code
+ * @remark Memory allocator allows a memory usage with high efficiency, if you don't specify one, \n
+ *  a default allocator will be used, which performs as common new and delete.
+ */
+DXGISCREENCAPTURE_PUBLIC int SetMemAllocator(ScreenCapture* instance, GetBuffer get_buffer, ReleaseBuffer release_buffer, void* allocator);
 
-DXGISCREENCAPTURE_PUBLIC void SetMemAllocator(ScreenCapture* instance, GetBuffer get_buffer, ReleaseBuffer release_buffer, void* allocator);
-
+/**
+ * @brief Set cursor visibility.
+ * @param instance ScreenCapture instance
+ * @param visible 1: show cursor, 0: hide cursor
+ */
 DXGISCREENCAPTURE_PUBLIC void SetCursorVisibility(ScreenCapture* instance, int visible);
 
 #define TIMEOUT_INFINITE 0xFFFFFFFF
@@ -94,7 +131,7 @@ DXGISCREENCAPTURE_PUBLIC int TakeSnapshot(ScreenCapture* instance, uint32_t time
 /**
  * @brief ReleaseFrame
  * @param frame pointer to a frame object returned by @em TakeSnapshot()
- * @return
+ * @return error code
  */
 DXGISCREENCAPTURE_PUBLIC int FrameRelease(Frame* frame);
 

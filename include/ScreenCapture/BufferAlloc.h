@@ -10,7 +10,7 @@ extern "C"
 
 typedef struct Buffer {
     uint8_t* ptr;
-    size_t size; /// avaliable buffer size, in bytes, after @em ptr
+    size_t size; /// avaliable buffer size, in bytes
 } Buffer;
 
 typedef Buffer* (*GetBuffer)(void* allocator, size_t size);

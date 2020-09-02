@@ -322,18 +322,25 @@ void SetCursorVisibility(ScreenCapture *instance, int visible)
     instance->showCursor = visible!=0;
 }
 
-void SetMemAllocator(ScreenCapture *instance, GetBuffer get_buffer, ReleaseBuffer release_buffer, void *allocator)
+int SetMemAllocator(ScreenCapture *instance, GetBuffer get_buffer, ReleaseBuffer release_buffer, void *allocator)
 {
+    if (!get_buffer || !release_buffer)
+    {
+        return E_INVALIDARG;
+    }
     instance->allocator.get = get_buffer;
     instance->allocator.release = release_buffer;
     instance->allocator.opaque = allocator;
+    return E_OK;
 }
 
 int FrameRelease(Frame *frame)
 {
+    if (!frame)
+        return E_INVALIDARG;
     FrameArgb* p = (FrameArgb*)frame;
     delete p;
-    return 0;
+    return E_OK;
 }
 
 class VideoAdapterImpl : public VideoAdapter
