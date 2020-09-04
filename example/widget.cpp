@@ -1,4 +1,4 @@
-﻿#include "widget.h"
+#include "widget.h"
 #include "ui_widget.h"
 
 #include <QTimer>
@@ -136,6 +136,6 @@ void Widget::takeSnapshot()
     if (!frm)
         return;
     ui->label->setPixmap(QPixmap::fromImage(((MyBuffer*)frm->buffer)->GetImage()));
-    FrameRelease(frm);
+    FrameRelease(sc, frm);
     update();
 }

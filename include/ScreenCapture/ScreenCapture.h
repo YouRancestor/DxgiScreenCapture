@@ -1,4 +1,4 @@
-﻿#ifndef SCREEPCAPTURE_H
+#ifndef SCREEPCAPTURE_H
 #define SCREEPCAPTURE_H
 
 #include <ScreenCapture/BufferAlloc.h>
@@ -99,10 +99,23 @@ typedef struct Frame
     uint32_t height;
     uint32_t pitch;
 } Frame;
+typedef Frame* (*GetFrame)(void* allocator, uint32_t format, uint32_t width, uint32_t height);
+typedef void (*ReleaseFrame)(void* allocator, Frame* frame);
+/**
+ * @brief SetFrameAllocator
+ * @param instance a ScreenCapture instance
+ * @param get_frame ScreenCapture will use the buffer allocated by this callback to receive screen image data, can not be null
+ * @param release_frame callback to release a frame allocated by @em get_frame, can not be null
+ * @param allocator the allocator context
+ * @return error code
+ * Frame allocator allows a memory usage with high efficiency, if you don't specify one, buffer allocator will be used, se @em SetMemAllocator.
+ */
+DXGISCREENCAPTURE_PUBLIC int SetFrameAllocator(ScreenCapture* instance, GetFrame get_frame, ReleaseFrame release_frame, void* allocator);
+
 /**
  * @brief Set memory allocator.
- * @param instance ScreenCapture instance
- * @param get_buffer screen will use the buffer allocated by this callback to receive screen image data, can not be null
+ * @param instance a ScreenCapture instance
+ * @param get_buffer ScreenCapture will use the buffer allocated by this callback to receive screen image data, can not be null
  * @param release_buffer callback to release a buffer allocated by @em get_buffer, can not be null
  * @param allocator the allocator context
  * @return error code
@@ -131,10 +144,11 @@ DXGISCREENCAPTURE_PUBLIC void SetCursorVisibility(ScreenCapture* instance, int v
 DXGISCREENCAPTURE_PUBLIC int TakeSnapshot(ScreenCapture* instance, uint32_t timeout_ms, Frame** frame);
 /**
  * @brief ReleaseFrame
+ * @param instance a ScreenCapture instance
  * @param frame pointer to a frame object returned by @em TakeSnapshot()
  * @return error code
  */
-DXGISCREENCAPTURE_PUBLIC int FrameRelease(Frame* frame);
+DXGISCREENCAPTURE_PUBLIC int FrameRelease(ScreenCapture* instance, Frame* frame);
 
 #ifdef __cplusplus
 }

@@ -1,4 +1,4 @@
-﻿#ifndef SCREENCAPTUREIMPL_H
+#ifndef SCREENCAPTUREIMPL_H
 #define SCREENCAPTUREIMPL_H
 
 #include <ScreenCapture/ScreenCapture.h>
@@ -33,6 +33,14 @@ struct ScreenCapture
         UINT posY;
         BOOL visiblity;
     } curInfo;
+
+    struct FrameAlloc
+    {
+        GetFrame get;
+        ReleaseFrame release;
+        void* opaque;
+    } frame_allocator;
+
     struct BuffAlloc
     {
         GetBuffer get;

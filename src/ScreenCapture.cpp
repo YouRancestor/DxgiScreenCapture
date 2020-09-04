@@ -1,4 +1,4 @@
-﻿
+
 #include <ScreenCapture/ScreenCapture.h>
 
 #include <dxgi1_2.h>
@@ -49,7 +49,7 @@ void DestroyScreenCapture(ScreenCapture *instance)
     delete instance;
 }
 
-static void DrawCursor(ScreenCapture* instance, FrameArgb *pic)
+static void DrawCursor(ScreenCapture* instance, Frame *pic)
 {
     if (!instance->curInfo.visiblity)
         return;
@@ -234,8 +234,20 @@ int TakeSnapshot(ScreenCapture *instance, uint32_t timeout_ms, Frame** frame)
     hr = instance->d3dContext->Map(texture, 0, D3D11_MAP_READ, 0, &mappedSubresource);
 
     // 拷贝到用户buffer
-    FrameArgb* pic = new FrameArgb((const char*)mappedSubresource.pData, desc.Width, desc.Height, desc.Width * 4, Image::Format_ARGB,
-                                    true, instance->allocator.get, instance->allocator.release, instance->allocator.opaque);
+    Frame* pic = NULL;
+    if (instance->frame_allocator.get)
+    {
+        pic = instance->frame_allocator.get(instance->frame_allocator.opaque, FORMAT_ARGB, desc.Width, desc.Height);
+        for(UINT i = 0; i<desc.Height; ++i)
+        {
+            memcpy(pic->buffer->ptr + pic->pitch*i, (char*)mappedSubresource.pData + desc.Width*4*i, desc.Width*4);
+        }
+    }
+    else
+    {
+        pic = new FrameArgb((const char*)mappedSubresource.pData, desc.Width, desc.Height, desc.Width * 4, Image::Format_ARGB,
+                            true, instance->allocator.get, instance->allocator.release, instance->allocator.opaque);
+    }
 
     // 绘制鼠标
     if (frminfo.PointerShapeBufferSize == 0)
@@ -334,12 +346,19 @@ int SetMemAllocator(ScreenCapture *instance, GetBuffer get_buffer, ReleaseBuffer
     return E_OK;
 }
 
-int FrameRelease(Frame *frame)
+int FrameRelease(ScreenCapture* instance, Frame *frame)
 {
     if (!frame)
         return E_INVALIDARG;
-    FrameArgb* p = (FrameArgb*)frame;
-    delete p;
+    if (instance->frame_allocator.release)
+    {
+        instance->frame_allocator.release(instance->frame_allocator.opaque, frame);
+    }
+    else
+    {
+        FrameArgb* p = (FrameArgb*)frame;
+        delete p;
+    }
     return E_OK;
 }
 
@@ -454,4 +473,16 @@ void FreeVideoAdapters(VideoAdapter *adapters)
 {
     VideoAdapterImpl* impl = (VideoAdapterImpl*)adapters;
     delete[] impl;
+}
+
+int SetFrameAllocator(ScreenCapture *instance, GetFrame get_frame, ReleaseFrame release_frame, void *allocator)
+{
+    if (!get_frame || !release_frame)
+    {
+        return E_INVALIDARG;
+    }
+    instance->frame_allocator.get = get_frame;
+    instance->frame_allocator.release = release_frame;
+    instance->frame_allocator.opaque = allocator;
+    return 0;
 }

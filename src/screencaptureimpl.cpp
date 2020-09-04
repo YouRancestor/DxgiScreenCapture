@@ -1,4 +1,4 @@
-﻿#include "screencaptureimpl.h"
+#include "screencaptureimpl.h"
 
 
 #include "definitions.h"
@@ -11,7 +11,8 @@ ScreenCapture::ScreenCapture(int adapter_index, int display_index)
     , displayIndex(display_index)
     , showCursor(true)
     , curInfo{NULL, 0, 0, 0, 0, 0, 0, 0, 0}
-    , allocator{DefaultAlloc, DefaultFree}
+    , frame_allocator{NULL, NULL, NULL}
+    , allocator{DefaultAlloc, DefaultFree, NULL}
 {}
 
 int ScreenCapture::ResetDxgiDup()
