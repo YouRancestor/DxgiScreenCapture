@@ -1,4 +1,4 @@
-#ifndef SCREENCAPTUREIMPL_H
+﻿#ifndef SCREENCAPTUREIMPL_H
 #define SCREENCAPTUREIMPL_H
 
 #include <ScreenCapture/ScreenCapture.h>
@@ -29,8 +29,8 @@ struct ScreenCapture
         UINT width;
         UINT height;
         UINT pitch;
-        UINT posX;
-        UINT posY;
+        LONG posX;
+        LONG posY;
         BOOL visiblity;
     } curInfo;
 

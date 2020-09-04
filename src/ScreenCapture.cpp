@@ -1,4 +1,4 @@
-
+﻿
 #include <ScreenCapture/ScreenCapture.h>
 
 #include <dxgi1_2.h>
@@ -62,8 +62,20 @@ static void DrawCursor(ScreenCapture* instance, Frame *pic)
     switch (cur->type) {
     case DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME:
     {
-        UINT w = cur->width;
-        UINT h =  cur->height / 2;
+        LONG offset_x = 0;
+        LONG offset_y = 0;
+        LONG w = cur->width;
+        LONG h =  cur->height / 2;
+
+        if (cur->posX < 0)
+        {
+            offset_x = -cur->posX;
+        }
+        if (cur->posY < 0)
+        {
+            offset_y = -cur->posY;
+        }
+
         if (cur->posX + w > pic->width)
         {
             w = pic->width - cur->posX;
@@ -72,16 +84,17 @@ static void DrawCursor(ScreenCapture* instance, Frame *pic)
         {
             h = pic->height - cur->posY;
         }
-        for (UINT yi = 0; yi< h; ++yi)
+
+        for (LONG yi = offset_y; yi < h; ++yi)
         {
-            for (UINT xi = 0; xi < w; ++xi)
+            for (LONG xi = offset_x; xi < w; ++xi)
             {
                 char andByte = src[yi*cur->pitch + xi/8];
                 char xorByte = src[cur->pitch*h + yi*cur->pitch + xi/8];
-                UINT bit = xi % 8;
+                int bit = xi % 8;
                 char mask = 1 <<(7-bit);
 
-                UINT pixSize = 4;
+                int pixSize = 4;
                 uint32_t* dst_color = (uint32_t*)(dst + pic->pitch * (cur->posY + yi) + (cur->posX + xi) * pixSize);
 
                 if (!(mask & andByte))
@@ -99,8 +112,20 @@ static void DrawCursor(ScreenCapture* instance, Frame *pic)
         break;
     case DXGI_OUTDUPL_POINTER_SHAPE_TYPE_COLOR:
     {
-        UINT w = cur->width;
-        UINT h =  cur->height;
+        LONG offset_x = 0;
+        LONG offset_y = 0;
+        LONG w = cur->width;
+        LONG h =  cur->height;
+
+        if (cur->posX < 0)
+        {
+            offset_x = -cur->posX;
+        }
+        if (cur->posY < 0)
+        {
+            offset_y = -cur->posY;
+        }
+
         if (cur->posX + w > pic->width)
         {
             w = pic->width - cur->posX;
@@ -110,10 +135,10 @@ static void DrawCursor(ScreenCapture* instance, Frame *pic)
             h = pic->height - cur->posY;
         }
 
-        UINT pixSize = 4;
-        for (UINT yi = 0; yi< h; ++yi)
+        int pixSize = 4;
+        for (LONG yi = offset_y; yi< h; ++yi)
         {
-            for (UINT xi = 0; xi < w; ++xi)
+            for (LONG xi = offset_x; xi < w; ++xi)
             {
                 uint8_t* pixel = src + yi*cur->pitch + xi*pixSize;
                 uint32_t* dst_color = (uint32_t*)(dst + pic->pitch * (cur->posY + yi) + (cur->posX + xi) * pixSize);
@@ -124,7 +149,7 @@ static void DrawCursor(ScreenCapture* instance, Frame *pic)
                     uint32_t a = (argb >> 24) & 0xff;
                     uint32_t r = (((argb >> 16) & 0xff) * a + ((*dst_color >> 16)&0xff) * (255-a)) / 255;
                     uint32_t g = (((argb >>  8) & 0xff) * a + ((*dst_color >>  8)&0xff) * (255-a)) / 255;
-                    uint32_t b = ((argb & 0xff) * a + (*dst_color&0xff) * (255-a)) / 255;
+                    uint32_t b = ((argb & 0xff) * a + (*dst_color&0xff) * (255-a)) / (float)255;
 
                     *dst_color = (0xff<<24) | (r<<16) | (g<<8) | b;
                 }
@@ -134,8 +159,20 @@ static void DrawCursor(ScreenCapture* instance, Frame *pic)
         break;
     case DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR:
     {
-        UINT w = cur->width;
-        UINT h =  cur->height;
+        LONG offset_x = 0;
+        LONG offset_y = 0;
+        LONG w = cur->width;
+        LONG h =  cur->height;
+
+        if (cur->posX < 0)
+        {
+            offset_x = -cur->posX;
+        }
+        if (cur->posY < 0)
+        {
+            offset_y = -cur->posY;
+        }
+
         if (cur->posX + w > pic->width)
         {
             w = pic->width - cur->posX;
@@ -144,11 +181,11 @@ static void DrawCursor(ScreenCapture* instance, Frame *pic)
         {
             h = pic->height - cur->posY;
         }
-        UINT pixSize = 4;
+        int pixSize = 4;
 
-        for (UINT yi = 0; yi< h; ++yi)
+        for (LONG yi = offset_y; yi< h; ++yi)
         {
-            for (UINT xi = 0; xi < w; ++xi)
+            for (LONG xi = offset_x; xi < w; ++xi)
             {
                 uint8_t* pixel = src + yi*cur->pitch + xi*pixSize;
                 uint32_t mask = (*(uint32_t*)pixel) & 0xff000000;
@@ -441,7 +478,7 @@ int EnumerateAdaptersAndOutputs(VideoAdapter **adapters, int *adapter_count)
             continue;
         }
         adpt->InitOutputs(c);
-        for(UINT j = 0; j < c; ++j)
+        for(int j = 0; j < c; ++j)
         {
             hr = dxgiadapter->EnumOutputs(j, &dxgi_output);
             if (FAILED(hr))

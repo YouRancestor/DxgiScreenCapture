@@ -1,4 +1,4 @@
-#ifndef SCREEPCAPTURE_H
+﻿#ifndef SCREEPCAPTURE_H
 #define SCREEPCAPTURE_H
 
 #include <ScreenCapture/BufferAlloc.h>

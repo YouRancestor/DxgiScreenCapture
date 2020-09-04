@@ -1,4 +1,4 @@
-#include "screencaptureimpl.h"
+﻿#include "screencaptureimpl.h"
 
 
 #include "definitions.h"
