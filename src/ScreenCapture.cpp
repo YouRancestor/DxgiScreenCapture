@@ -324,15 +324,13 @@ int TakeSnapshot(ScreenCapture *instance, uint32_t timeout_ms, Frame** frame)
             // 更新鼠标信息
             DXGI_OUTDUPL_POINTER_POSITION pos = frminfo.PointerPosition;
             instance->curInfo.visiblity = pos.Visible;
-            if (pos.Visible)
-            {
-                instance->curInfo.posX = pos.Position.x;
-                instance->curInfo.posY = pos.Position.y;
-                instance->curInfo.width = ptrinfo.Width;
-                instance->curInfo.height = ptrinfo.Height;
-                instance->curInfo.pitch = ptrinfo.Pitch;
-                instance->curInfo.type = ptrinfo.Type;
-            }
+            instance->curInfo.posX = pos.Position.x;
+            instance->curInfo.posY = pos.Position.y;
+            instance->curInfo.width = ptrinfo.Width;
+            instance->curInfo.height = ptrinfo.Height;
+            instance->curInfo.pitch = ptrinfo.Pitch;
+            instance->curInfo.type = ptrinfo.Type;
+
             if (instance->showCursor)
             {
                 // 绘制鼠标指针
