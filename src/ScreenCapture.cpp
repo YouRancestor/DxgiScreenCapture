@@ -442,10 +442,12 @@ int EnumerateAdaptersAndOutputs(VideoAdapter **adapters, int *adapter_count)
     IDXGIAdapter1* dxgiadapter;
     while(dxgiFactory->EnumAdapters1(count, &dxgiadapter) != DXGI_ERROR_NOT_FOUND)
     {
+        SAFE_RELEASE(dxgiadapter);
         ++count;
     }
     if (count == 0)
     {
+        SAFE_RELEASE(dxgiFactory);
         return E_DEVICE_NOT_SURPPORT;
     }
 
@@ -469,6 +471,7 @@ int EnumerateAdaptersAndOutputs(VideoAdapter **adapters, int *adapter_count)
         IDXGIOutput* dxgi_output = NULL;
         while(dxgiadapter->EnumOutputs(c, &dxgi_output)!=DXGI_ERROR_NOT_FOUND)
         {
+            SAFE_RELEASE(dxgi_output);
             ++c;
         }
         if (count == 0)
@@ -476,28 +479,33 @@ int EnumerateAdaptersAndOutputs(VideoAdapter **adapters, int *adapter_count)
             continue;
         }
         adpt->InitOutputs(c);
-        for(int j = 0; j < c; ++j)
+        for(UINT j = 0; j < c; ++j)
         {
             hr = dxgiadapter->EnumOutputs(j, &dxgi_output);
             if (FAILED(hr))
             {
+                SAFE_RELEASE(dxgiadapter);
                 goto again;
             }
             adpt->outputs[j].index = j;
             DXGI_OUTPUT_DESC desc;
             dxgi_output->GetDesc(&desc);
+            SAFE_RELEASE(dxgi_output);
             memcpy(adpt->outputs[j].name, desc.DeviceName, sizeof (desc.DeviceName));
             adpt->outputs[j].width = desc.DesktopCoordinates.right - desc.DesktopCoordinates.left;
             adpt->outputs[j].height = desc.DesktopCoordinates.bottom - desc.DesktopCoordinates.top;
         }
+        SAFE_RELEASE(dxgiadapter);
 
     }
+    SAFE_RELEASE(dxgiFactory);
 
     *adapters = adpts;
 
     return 0;
 
 again:
+    SAFE_RELEASE(dxgiFactory);
     delete[] adpts;
     *adapters = NULL;
     *adapter_count = 0;
